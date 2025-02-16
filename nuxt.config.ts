@@ -9,11 +9,7 @@ export default defineNuxtConfig({
         }
     },
     css: [
-        '~/assets/css/variables.css',
-        '~/assets/css/rules.css',
+        '~/assets/css/main.css',
     ],
-    modules: [
-        '@nuxt/ui',
-        '@nuxtjs/tailwindcss'
-    ]
+    modules: ['@nuxt/ui', '@nuxtjs/tailwindcss', '@nuxt/icon']
 })

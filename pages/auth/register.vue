@@ -38,9 +38,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
             <UInput v-model="state.password" type="password" />
           </UFormGroup>
 
-          <UButton block type="submit">
-            Submit
-          </UButton>
+<Button label="Valider"/>
         </UForm>
 
         <p>Vous n'avez pas encore de compte ?</p>
@@ -73,6 +71,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 
   .left{
     background-color: var(--mustard);
+    color: var(--dark);
     height: 30%;
 
     @media only screen and (min-width: 992px) {

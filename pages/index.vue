@@ -5,7 +5,6 @@
 
 <template>
   <p>hello</p>
-  <p></p>
 
 </template>
 

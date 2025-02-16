@@ -1,22 +1,4 @@
-/*Tailles des titres, conteneurs, etc*/
-
-/* html { font-size: 62.5%; }  =10px */
-
-/* Mobile */
-
-/* Tablet */
-
-/* Desktop */
-
-body{
-    font-size: 1.6rem;
-}
-
 h1, .h1{
-    font-family: 'Atkinson Hyperlegible', sans-serif;
-    font-weight: 700;
-    font-size: var(--h1-font-size);
+    font-size: var(--font-size-h1);
+    font-weight: 900;
 }
-
-
-
