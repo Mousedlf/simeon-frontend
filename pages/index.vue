@@ -74,7 +74,7 @@ const tabs = [{
             <div class="mt-6">
               <div v-for="trip in trips" :key="trip.id" class="group relative">
                 <span v-if="trip.upcoming">
-                  <a href="/trip"> <!-- /trip.id -->
+                  <a :href="'/trip/'+ trip.id">
                     <div class="h-56 w-full md:w-1/2 overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
                   <img :src="trip.imageSrc" :alt="trip.imageAlt" class="size-full object-cover"/>
                 </div>
@@ -96,7 +96,7 @@ const tabs = [{
             <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
               <div v-for="trip in trips" :key="trip.id" class="group relative">
                 <span v-if="!trip.upcoming">
-                  <a href="/trip"> <!-- /trip.id -->
+                  <a :href="'/trip/'+ trip.id"> <!-- /trip.id -->
 <div class="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
                   <img :src="trip.imageSrc" :alt="trip.imageAlt" class="size-full object-cover"/>
                 </div>

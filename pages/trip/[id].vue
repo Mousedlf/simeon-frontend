@@ -44,17 +44,32 @@ const days = [{
 }]
 
 const expenses = [{
-  category: 'café',
+  category: 'coffee',
   price: '5.00'
 }, {
-  category: 'musée',
+  category: 'museum',
   price: '9.00'
 }, {
   category: 'restaurant',
   price: '15.00'
 }, {
-  category: 'café',
+  category: 'drinks',
   price: '5.00'
+},
+]
+
+const documents = [{
+  title: 'Réservation musée X',
+  category: 'museum',
+}, {
+  title: 'Réservation parc X',
+  category: 'museum',
+}, {
+  title: 'Bus 24837',
+  category: 'transport',
+}, {
+  title: 'Vol FR-GR',
+  category: 'flight',
 },
 ]
 
@@ -62,6 +77,19 @@ const participants = [{
   name: "Thomas",
 }, {
   name: "Thibo",
+}
+]
+
+const stats = [{
+  text: "Budget journalier",
+  spent: 12,
+  total: 50,
+  progress: 24
+}, {
+  text: "Budget total",
+  spent: 134,
+  total: 1000,
+  progress: 13
 }
 ]
 
@@ -129,65 +157,78 @@ const participants = [{
       </div>
     </div>
 
-    <div class="w-full flex lg:flex-row lg:w-10/12 bg-white">
+    <div class="w-full h-screen bg-amber-500 flex lg:flex-row lg:w-10/12 md:block bg-white border-t border-t-gray-200">
       <UTabs :items="tabs"
              :default-index="0"
-             class="w-full lg:w-1/2 p-4 bg-white"
              variant="link"
              color="primary"
-      >
+
+      > <!-- PAS LA BONNE HAUTEUR ! -->
 
         <template #itinerary="{ item }">
-          <UTabs :items="days" :default-index="0"/>
-          <p>itinéraire</p>
+          <div class="flex ">
+            <div class="w-full h-full lg:w-1/2 p-4 ">
+              <UTabs :items="days" :default-index="0"/>
+              <h3>itinéraire</h3>
+            </div>
+
+
+            <div class="w-full  lg:w-1/2 p-4 bg-gray-100 hidden lg:block">
+              Carte
+            </div>
+          </div>
+
         </template>
 
         <template #expenses="{ item }">
-          <UTabs :items="days" :default-index="0"/>
-          <h3>Dernières dépenses</h3>
-          <div class="" v-for="expense in expenses" :key="item.id">
-            <div class="flex justify-between border-b">
-              <p>{{ expense.category }}</p>
-              <div class="flex">
-                <p>{{ expense.price }}</p>
-                <button id="dropdownMenuIconButton" data-dropdown-toggle="dropdownDots"
-                        class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                        type="button">
-                  <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                       viewBox="0 0 4 15">
-                    <path
-                        d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-                  </svg>
-                </button>
 
-                <!-- Dropdown menu -->
-                <div id="dropdownDots"
-                     class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700 dark:divide-gray-600">
-                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownMenuIconButton">
-                    <li>
-                      <a href="#"
-                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Modifier</a>
-                    </li>
-                    <li>
-                      <a href="#"
-                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Enlever</a>
-                    </li>
-                  </ul>
-                </div>
+          <div class="flex">
+            <div class="w-full h-full lg:w-1/2 p-4 ">
+              <UTabs :items="days" :default-index="0"/>
+              <h3>Dernières dépenses</h3>
+              <div class="" v-for="expense in expenses" :key="item.id">
+                <DataLine
+                    type="expense"
+                    :category="expense.category"
+                    :price="expense.price"
+                />
               </div>
             </div>
+            <div class="mx-auto flex flex-col bg-amber-300" v-for="stat in stats">
+              <DataBox
+                  :text="stat.text"
+                  :spent="stat.spent"
+                  :total="stat.total"
+                  :progress="stat.progress"
+              />
+
+            </div>
+
           </div>
         </template>
 
         <template #documents="{ item }">
-          <UTabs :items="days" :default-index="0"/>
-          <p>documents</p>
+
+          <div class="flex">
+            <div class="w-full h-full lg:w-1/2 p-4 ">
+              <UTabs :items="days" :default-index="0"/>
+              <h3>Documents</h3>
+              <div class="" v-for="document in documents" :key="item.id">
+                <DataLine
+                    type="document"
+                    :title="document.title"
+                    :category="document.category"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div></div>
+
         </template>
       </UTabs>
 
-      <div class="w-full lg:w-1/2 p-4 bg-gray-100 hidden lg:block">
-        Carte
-      </div>
+
 
     </div>
   </div>
