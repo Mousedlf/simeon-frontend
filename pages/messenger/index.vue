@@ -76,7 +76,7 @@ const sidebarOpen = ref(false)
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in trips" :key="item.name">
                           <a :href="item.href"
-                             :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                             :class="[item.current ? 'border-b-gray-400' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
                             <component
                                        :class="[item.current ? 'text-white' : 'text-indigo-200 group-hover:text-white', 'size-6 shrink-0']"
                                        aria-hidden="true"/>
@@ -103,8 +103,7 @@ const sidebarOpen = ref(false)
     <!-- Static sidebar for desktop -->
     <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
-      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-600 px-6 pb-4">
-
+      <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-100 px-6 pb-4">
         <Logo/>
         <nav class="flex flex-1 flex-col">
           <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -112,7 +111,7 @@ const sidebarOpen = ref(false)
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in trips" :key="item.name">
                   <a :href="item.href"
-                     :class="[item.current ? 'bg-indigo-700 text-white' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                     :class="[item.current ? 'border-b-2 ' : 'text-indigo-200 hover:bg-indigo-700 hover:text-white', 'group flex gap-x-3 p-2 text-sm/6 font-semibold']">
                     <component
                                :class="[item.current ? 'text-white' : 'text-indigo-200 group-hover:text-white', 'size-6 shrink-0']"
                                aria-hidden="true"/>
@@ -146,8 +145,6 @@ const sidebarOpen = ref(false)
             <input type="search" name="search" aria-label="Search"
                    class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:text-sm/6"
                    placeholder="Search"/>
-            <MagnifyingGlassIcon class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400"
-                                 aria-hidden="true"/>
           </form>
           <div class="flex items-center gap-x-4 lg:gap-x-6">
             <button type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">

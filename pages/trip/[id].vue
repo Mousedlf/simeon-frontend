@@ -157,23 +157,22 @@ const stats = [{
       </div>
     </div>
 
-    <div class="w-full h-screen bg-amber-500 flex lg:flex-row lg:w-10/12 md:block bg-white border-t border-t-gray-200">
+    <div class="w-full flex lg:flex-row lg:w-10/12 md:block bg-green-600 border-t border-t-gray-200">
       <UTabs :items="tabs"
              :default-index="0"
              variant="link"
              color="primary"
-
+             class="bg-red-700"
       > <!-- PAS LA BONNE HAUTEUR ! -->
 
         <template #itinerary="{ item }">
-          <div class="flex ">
-            <div class="w-full h-full lg:w-1/2 p-4 ">
-              <UTabs :items="days" :default-index="0"/>
+          <div class="flex bg-purple-500">
+            <div class="lg:w-1/2 p-4">
+              <UTabs :items="days" :default-index="0" size="sm"/>
               <h3>itinéraire</h3>
             </div>
 
-
-            <div class="w-full  lg:w-1/2 p-4 bg-gray-100 hidden lg:block">
+            <div class="w-full lg:w-1/2 bg-yellow-300 hidden lg:block">
               Carte
             </div>
           </div>
@@ -227,9 +226,6 @@ const stats = [{
 
         </template>
       </UTabs>
-
-
-
     </div>
   </div>
 
