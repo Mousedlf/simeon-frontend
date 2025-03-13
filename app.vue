@@ -1,10 +1,12 @@
 <template>
-  <div>
+  <UApp>
     <NuxtLayout>
       <Navbar/>
       <NuxtPage/>
+      <Footer/>
     </NuxtLayout>
-  </div>
+  </UApp>
 </template>
+
 <script setup lang="ts">
 </script>

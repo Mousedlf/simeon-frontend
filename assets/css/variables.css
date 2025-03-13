@@ -14,3 +14,7 @@
     --font-size-h3: 18px;
     --font-size-h3-mobile: 16px;
 }
+
+.h-screen{
+    height: 92vh;
+}

@@ -12,7 +12,7 @@ defineProps({
 
 <template>
 
-  <UButton class=""
+  <UButton class="font-semibold text-md"
            block type="submit">
     {{ label }}
   </UButton>

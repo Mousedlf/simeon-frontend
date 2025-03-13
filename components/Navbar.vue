@@ -14,7 +14,7 @@ const authenticated = false;
 
       <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
         <div v-if="!authenticated" class="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/auth/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+          <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
         </div>
         <div v-else >
           <button type="button"
