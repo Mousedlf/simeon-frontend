@@ -2,11 +2,21 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
+  modules: [
+      '@nuxt/ui',
+      '@pinia/nuxt',
+      'pinia-plugin-persistedstate/nuxt',
+  ],
   css: [
       '~/assets/css/main.css',
       '~/assets/css/rules.css',
       '~/assets/css/variables.css',
-  ]
+  ],
+    runtimeConfig:{
+      public: {
+          baseUrlApi: ''
+      }
+    }
+
 
 })

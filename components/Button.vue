@@ -5,6 +5,9 @@ defineProps({
     type: String,
     required: true
   },
+  redirect:{
+    type: String,
+  }
 
 });
 
@@ -12,8 +15,10 @@ defineProps({
 
 <template>
 
-  <UButton class="font-semibold text-md"
-           block type="submit">
+  <UButton class="font-semibold text-md mx-2"
+           block type="submit"
+           :to="redirect"
+  >
     {{ label }}
   </UButton>
 

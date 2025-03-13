@@ -1,6 +1,11 @@
 <script setup lang="ts">
 
-const authenticated = false;
+import {useAuthStore} from "~/store/auth";
+
+const authStore = useAuthStore()
+
+
+const authenticated = authStore.authenticated;
 
 </script>
 
@@ -16,7 +21,8 @@ const authenticated = false;
         <div v-if="!authenticated" class="hidden lg:flex lg:flex-1 lg:justify-end">
           <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
         </div>
-        <div v-else >
+        <div v-else  class="flex">
+          <Button redirect="/trip/new" label="Ajouter un voyage"/>
           <button type="button"
                   class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                   id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"

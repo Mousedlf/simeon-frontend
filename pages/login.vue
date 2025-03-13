@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as v from 'valibot'
 import type {FormSubmitEvent} from '@nuxt/ui'
+import { useAuthStore } from '~/store/auth'
 
 const schema = v.object({
   username: v.pipe(
@@ -33,6 +34,7 @@ const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
 const baseUrl = "https://simeon.back.dlfcaroline.com"
 const toast = useToast()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const register = async () => {
   try {
@@ -49,7 +51,6 @@ const register = async () => {
     });
 
     const responseData = await res.json()
-    console.log(responseData)
 
     if (!res.ok) {
       toast.add({
@@ -58,15 +59,28 @@ const register = async () => {
         color: 'error',
         duration: 5000
       })
-    }
+    }else {
 
-    // await router.push('/')
+      toast.add({
+        title: 'Connexion réussie',
+        description: 'Vous êtes maintenant connecté',
+        color: 'success',
+        duration: 3000
+      })
+
+      authStore.setToken(responseData)
+      //recup user ?
+
+      await router.push('/')
+    }
 
   } catch (error: any) {
     console.error(error)
     resetForm()
   }
 }
+
+
 
 </script>
 
