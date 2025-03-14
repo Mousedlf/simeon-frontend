@@ -25,7 +25,7 @@ const progressValue = ref(props.progress);
 
 <template>
 
-  <div class="border rounded py-6 px-20 flex flex-col justify-center items-center ">
+  <div class="border rounded py-6 px-20 flex flex-col justify-center items-center mb-4">
     <p>{{text}}</p>
     <p><span>{{ spent }}</span>/ {{total}}</p>
     <UProgress v-model="progressValue"  /> <!-- color="error" -->

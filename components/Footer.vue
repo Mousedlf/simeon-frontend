@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="bg-primary-950 p-2">
+  <div class="bg-primary-950 p-2 mt-12">
     <p>un footer</p>
   </div>
 

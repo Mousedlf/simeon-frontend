@@ -157,25 +157,25 @@ const stats = [{
       </div>
     </div>
 
-    <div class="w-full flex lg:flex-row lg:w-10/12 md:block bg-green-600 border-t border-t-gray-200">
+    <div class="w-full flex lg:flex-row lg:w-10/12 md:block bg-white border-t border-t-gray-200">
       <UTabs :items="tabs"
-             :default-index="0"
+             :default-index="1"
              variant="link"
              color="primary"
-             class="bg-red-700"
+             class=""
       > <!-- PAS LA BONNE HAUTEUR ! -->
 
         <template #itinerary="{ item }">
-          <div class="flex bg-purple-500">
+       <!--   <div class="flex bg-purple-500 h-screen">
             <div class="lg:w-1/2 p-4">
               <UTabs :items="days" :default-index="0" size="sm"/>
               <h3>itinéraire</h3>
             </div>
 
-            <div class="w-full lg:w-1/2 bg-yellow-300 hidden lg:block">
-              Carte
+            <div class="w-full lg:w-1/2 bg-yellow-300 hidden lg:block ">
+              <Map />
             </div>
-          </div>
+          </div> -->
 
         </template>
 
@@ -184,7 +184,7 @@ const stats = [{
           <div class="flex">
             <div class="w-full h-full lg:w-1/2 p-4 ">
               <UTabs :items="days" :default-index="0"/>
-              <h3>Dernières dépenses</h3>
+              <h3>Dépenses du ...</h3>
               <div class="" v-for="expense in expenses" :key="item.id">
                 <DataLine
                     type="expense"
@@ -193,15 +193,17 @@ const stats = [{
                 />
               </div>
             </div>
-            <div class="mx-auto flex flex-col bg-amber-300" v-for="stat in stats">
-              <DataBox
-                  :text="stat.text"
-                  :spent="stat.spent"
-                  :total="stat.total"
-                  :progress="stat.progress"
-              />
-
+            <div class="ml-10">
+              <div class="" v-for="stat in stats">
+                <DataBox
+                    :text="stat.text"
+                    :spent="stat.spent"
+                    :total="stat.total"
+                    :progress="stat.progress"
+                />
+              </div>
             </div>
+
 
           </div>
         </template>

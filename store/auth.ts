@@ -1,16 +1,40 @@
 import {defineStore} from 'pinia';
 import Cookies from 'universal-cookie';
+import type {UserProfile} from "~/types/profile";
 
 export const useAuthStore = defineStore('auth',
     () => {
         const cookies = new Cookies(null, {path: '/'});
-        const currentUser: any = ref(null);
+       // const currentUser: UserProfile = ref(null);
         const config = useRuntimeConfig();
+        const router = useRouter();
 
+        async function getCurrentUser(): Promise<UserProfile | null> {
+            if (!cookies.get('token')) return null;
 
-        // recup currentUser
+            try {
+                const res = await fetch(`${config.public.baseUrlApi}/user/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + cookies.get('token'),
+                    }
+                });
 
-        function authenticated() {
+                if(!res.ok) return null;
+
+                const userData = await res.json()
+
+                console.log(userData)
+
+                return userData;
+
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        function authenticated(): boolean {
             return !!cookies.get('token');
         }
 
@@ -20,9 +44,10 @@ export const useAuthStore = defineStore('auth',
 
         function logout() {
             cookies.remove('token');
+            router.push('/login');
         }
 
-        return {cookies, setToken, logout, authenticated};
+        return {cookies, setToken, logout, authenticated, getCurrentUser};
     },
-    { persist: true }
+    {persist: true}
 )
