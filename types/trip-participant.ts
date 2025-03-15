@@ -5,6 +5,6 @@ export interface TripParticipant {
     id: number;
     trip: Trip
     role: string;
-    user: UserProfile
+    participant: UserProfile
     imageSrc: string;
 }
