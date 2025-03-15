@@ -88,7 +88,7 @@ const register = async () => {
 
 <template>
   <div class="flex flex-col md:flex-row h-screen w-screen">
-    <div class="left bg-primary-100 flex items-center justify-center md:w-1/2 p-8">
+    <div class="left bg-primary-500 flex items-center justify-center md:w-1/2 p-8">
       <h1 class="hidden md:block md:text-2xl lg:text-3xl md:w-3/4">
         Simplifiez l'organisation et le suivi de vos voyages, solo ou à plusieurs, grâce à notre interface intégrant planning interactif, gestion financière et de réservations, ain si qu'une messagerie.
       </h1>

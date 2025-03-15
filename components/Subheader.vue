@@ -16,10 +16,10 @@ defineProps({
 <template>
 
   <div class="bg-white">
-    <div class="px-2 bg-primary-100 py-16 flex items-center flex-col">
+    <div class="px-2 bg-primary-500 py-16 flex items-center flex-col mb-4 md:mb-16">
       <h1>{{ title }}</h1>
       <p>{{ text }}</p>
-      <slot></slot>
+      <slot ></slot>
     </div>
   </div>
 

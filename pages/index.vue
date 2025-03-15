@@ -22,7 +22,7 @@ async function getTrips(){
     const token = cookies.get('token')
 
     if (!token) {
-      router.push('/login');
+      await router.push('/login');
     }
 
     const res = await fetch(`${config.public.baseUrlApi}/trip/all/10`, { // authenticatedFetch
@@ -54,7 +54,7 @@ onMounted(() => {
   getTrips();
 });
 
-const defaultTripImage = 'https://www.voyageursdumonde.fr/voyage-sur-mesure/img/mag/201602/montagne-a-hawaii.jpg';
+const defaultTripImage = 'https://www.bagagesavivre.fr/media/9752/big/voyage-avion-conseils.jpg';
 const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCQ5uDxEKaeg-oV_AKOqwnTFoxR1gHUZ1EwQ&s';
 
 ///
@@ -85,7 +85,7 @@ function formatDateRange(startDate: string, endDate: string): string {
     >
       <div class="container align-middle border border-white py-6 mt-6">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <dl class="grid grid-cols-1 gap-y-8 text-center grid-cols-3">
+          <dl class="grid grid-cols-1 gap-y-8 text-center md:grid-cols-3">
             <div class="mx-auto flex max-w-xs flex-col">
               <dt class="text-base/7 text-gray-600">jours de voyage</dt>
               <dd class="order-first text-2xl md:text-4xl font-semibold tracking-tight ">54</dd>
@@ -124,7 +124,7 @@ function formatDateRange(startDate: string, endDate: string): string {
                     <div class="ml-6">
                       <h3 class="mt-4 text-gray-700">{{ trip.name }}</h3>
                       <p>{{ trip.description }}</p>
-                      <span class="text-gray-400 text-sm flex align-middle mt-2">
+                      <span class="text-gray-400 flex align-middle mt-2">
                         <UIcon name="i-heroicons-calendar-days-solid" class="w-5 h-5"/>{{ formatDateRange(trip.startDate, trip.endDate) }}
                       </span>
 

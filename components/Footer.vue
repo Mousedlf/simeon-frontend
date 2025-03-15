@@ -1,9 +1,10 @@
 <script setup lang="ts">
 
+
 </script>
 
 <template>
-  <div class="bg-primary-950 p-2 mt-12">
+  <div class="bg-blue-800 p-2 text-white">
     <p>un footer</p>
   </div>
 

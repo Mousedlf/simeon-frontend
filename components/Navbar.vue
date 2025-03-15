@@ -3,106 +3,166 @@
 import {useAuthStore} from "~/store/auth";
 
 const authStore = useAuthStore()
+const isAuthenticated = authStore.authenticated;
+const showDropdown = ref(false);
+const showMobileMenu = ref(false);
+const route = useRoute();
 
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+  if (showDropdown.value) {
+    showMobileMenu.value = false;
+  }
+}
 
-const authenticated = authStore.authenticated;
+function toggleMobileMenu() {
+  showMobileMenu.value = !showMobileMenu.value;
+  if (showMobileMenu.value) {
+    showDropdown.value = false;
+  }
+}
+
+function isActive(path: string): boolean {
+  return route.path === path;
+}
+
+const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCQ5uDxEKaeg-oV_AKOqwnTFoxR1gHUZ1EwQ&s';
 
 </script>
 
 <template>
-
-  <nav class="container bg-white border-gray-200 dark:bg-gray-900 mx-auto">
-    <div class="w-full flex flex-wrap items-center justify-between p-4 ">
+  <nav class="container bg-white border-gray-200 mx-auto relative h-16">
+    <div class="w-full flex flex-wrap items-center justify-between p-4">
       <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-       <Logo />
+        <Logo/>
       </a>
 
       <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-        <div v-if="!authenticated" class="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+        <div v-if="!isAuthenticated" class="hidden lg:flex lg:flex-1 lg:justify-end">
+          <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span
+              aria-hidden="true">&rarr;</span></a>
         </div>
-        <div v-else  class="flex">
-          <Button redirect="/trip/new" label="Ajouter un voyage"/>
-          <button type="button"
-                  class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                  id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
-                  data-dropdown-placement="bottom">
-            <span class="sr-only">Open user menu</span>
-            <img class="w-8 h-8 rounded-full" src="" alt=".">
-          </button>
-          <!-- Dropdown menu -->
-          <div
-              class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600"
-              id="user-dropdown">
-            <div class="px-4 py-3">
-              <span class="block text-sm text-gray-900 dark:text-white">Nom prénom</span>
-              <span class="block text-sm  text-gray-500 truncate dark:text-gray-400">mail@mail.com</span>
+        <div v-else class="flex items-center gap-4">
+          <UButton redirect="/trip/new"
+                  label="Ajouter un voyage"
+                  class="hidden md:block"
+                  size="md"
+          />
+
+          <!-- Avatar -->
+          <div class="relative">
+            <button @click="toggleDropdown" type="button"
+                    class="flex text-sm  rounded-full hover:ring-4 hover:ring-blue-300">
+              <img class="w-8 h-8 rounded-full" :src="authStore.user?.imageSrc || defaultProfileImage" alt="Avatar">
+            </button>
+
+            <!-- Dropdown -->
+            <div v-show="showDropdown"
+                 class="absolute right-0 z-50 mt-2 w-56 md:w-48 origin-top-right rounded-md  py-1 shadow-lg bg-blue-300  focus:outline-none ">
+              <div class="px-4 py-3">
+                <span class="block md:text-sm text-gray-900">{{ authStore.user?.name || "@pseudonyme" }}</span>
+                <span class="block md:text-sm text-gray-500 truncate">{{ authStore.user?.email || "mail@mail.com" }}</span>
+              </div>
+              <ul class="py-2">
+                <USeparator/>
+                <li>
+                  <a href="/profile" class="block px-4 py-2 md:text-sm text-gray-700 hover:bg-blue-500 hover:text-white">
+                    Mes informations
+                  </a>
+                </li>
+                <li>
+                  <a href="#"
+                     class="block px-4 py-2 md:text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Mes
+                    documents officiels</a>
+                </li>
+                <li>
+                  <a href="#"
+                     class="block px-4 py-2 md:text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Mon
+                    prochain voyage</a>
+                </li>
+                <li>
+                  <a href="#"
+                     class="block px-4 py-2 md:text-sm text-gray-700 hover:bg-blue-500 hover:text-white">Mes
+                    amis
+                    <UBadge  color="neutral" variant="outline" size="sm" class="rounded-full">à venir</UBadge>
+                  </a>
+                </li>
+                <li>
+                  <a @click="authStore.logout()"
+                     class="block px-4 py-2 md:text-sm text-gray-700 hover:bg-blue-500 hover:text-white cursor-pointer">
+                    Déconnexion
+                  </a>
+                </li>
+              </ul>
             </div>
-            <ul class="py-2" aria-labelledby="user-menu-button">
-              <li>
-                <a href="/profile"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mes
-                  informations</a>
-              </li>
-              <li>
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mes
-                  documents officiels</a>
-              </li>
-              <li>
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mon
-                  prochain voyage</a>
-              </li>
-              <li>
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mes
-                  amis</a>
-              </li>
-              <li>
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Récapitulatifs</a>
-              </li>
-              <li>
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Déconnexion</a>
-              </li>
-            </ul>
           </div>
-          <button data-collapse-toggle="navbar-user" type="button"
-                  class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                  aria-controls="navbar-user" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
+
+          <!-- Menu mobile -->
+          <button @click="toggleMobileMenu" type="button"
+                  class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100">
             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M1 1h15M1 7h15M1 13h15"/>
             </svg>
           </button>
         </div>
-
       </div>
 
-      <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-        <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+      <!-- Navigation principale -->
+      <div
+          :class="[
+              'md:flex md:w-auto md:order-1',
+              'absolute top-16 left-0 right-0 md:relative md:top-0 ',
+              'z-50 bg-white shadow-lg md:shadow-none',
+              { 'hidden': !showMobileMenu }
+          ]"
+          id="navbar-user"
+      >
+        <ul class="flex flex-col font-medium p-10 md:p-0 bg-blue-300 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white text-center">
           <li>
             <a href="/"
-               class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
-               aria-current="page">Mes voyages</a>
+               :class="['block py-2 px-3 rounded-sm transition-colors duration-200',
+               isActive('/') ? 'text-blue-500 font-semibold' : 'text-gray-900 hover:text-blue-500'
+               ]"
+            >Mes voyages</a>
           </li>
           <li>
             <a href="/messenger"
-               class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Conversations
-              <UChip v-if="authenticated" :text="5" size="3xl"/>
+               :class="['block py-2 px-3 rounded-sm transition-colors duration-200',
+               isActive('/messenger') ? 'text-blue-500 font-semibold' : 'text-gray-900 hover:text-blue-500'
+               ]"
+            >Conversations
+              <UChip :text="5" size="3xl"/>
             </a>
+          </li>
+          <li>
+            <a href="#"
+               class="block py-2 px-3 rounded-sm transition-colors duration-200"
+            >Communauté
+              <UBadge  color="neutral" variant="outline" size="sm" class="rounded-full">à venir</UBadge>
+            </a>
+          </li>
+
+          <li class="md:hidden mt-4 pt-4 border-t border-gray-200">
+            <h3>Envie de partir à l'aventure ? lala</h3>
+            <Button redirect="/trip/new" label="Ajouter un voyage" class="block"/>
           </li>
         </ul>
       </div>
-
     </div>
   </nav>
-
-
 </template>
 
 <style scoped>
+
+@media (max-width: 768px) {
+  #navbar-user {
+    transition: all 0.3s ease-in-out;
+    transform: translateX(-100%);
+  }
+  #navbar-user:not(.hidden) {
+    transform: translateX(0);
+  }
+}
+
 </style>

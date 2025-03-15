@@ -98,7 +98,7 @@ const stats = [{
 <template>
   <div class="mx-auto flex flex-col lg:flex-row h-screen">
 
-    <div class="w-full lg:w-2/12 p-4 bg-gray-100 md:block">
+    <div class="w-full lg:w-2/12 p-4 bg-primary-500 md:block">
       <div class="lg:hidden">
         <div class="flex justify-between items-center">
           <h1>Lyon</h1>
@@ -116,7 +116,7 @@ const stats = [{
         </div>
 
         <div v-if="activePanel === 'map'" class="">
-          <div class="bg-gray-700 p-4">carte</div>
+          <div class="bg-gray-700">carte</div>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ const stats = [{
 
         </div>
 
-        <UCalendar range v-model="value" week-starts-on="1.0"/>
+        <UCalendar range v-model="value" week-starts-on="1.0" size="sm" color="neutral" :year-controls="false"/>
 
         <h3>Recap des jours</h3>
         <ul v-for="day in days"
@@ -163,6 +163,7 @@ const stats = [{
              variant="link"
              color="primary"
              class=""
+             size="xl"
       > <!-- PAS LA BONNE HAUTEUR ! -->
 
         <template #itinerary="{ item }">
@@ -194,6 +195,23 @@ const stats = [{
               </div>
             </div>
             <div class="ml-10">
+              <UModal
+                  title="Ajouter une dépense"
+                  description="Manuellement en entrant toutes les données, ou assisté avec un préremplissage suite à la prise d'une photo."
+
+              >
+                <Button label="Ajouter une dépense"/>
+
+                <template #body >
+                  <div class="flex flex-col justify-center">
+                    <Button label="Manuellement"/>
+                    <USeparator label="ou" />
+                    <Button label="Photo d'un recu"/>
+                  </div>
+
+
+                </template>
+              </UModal>
               <div class="" v-for="stat in stats">
                 <DataBox
                     :text="stat.text"
