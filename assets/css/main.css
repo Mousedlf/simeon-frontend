@@ -1,3 +1,10 @@
-@import 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap';
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+@theme {
+    --color-blue-800: #061A40 ;
+    --color-blue-500: #4885AD ;
+    --color-blue-300: #BBD1E7;
+
+    --color-primary-500: #FFD454;
+}

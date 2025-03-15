@@ -7,13 +7,15 @@ h1, .h1{
     font-weight: 700;
     padding-bottom: 20px;
     line-height: 42px;
+    color: var(--color-blue-800);
 
-      /*ajouter brekapoints  font-size: var(--font-size-h1-mobile);*/
+      /*ajouter breakpoints  font-size: var(--font-size-h1-mobile);*/
 }
 
 h2, .h2{
     font-size: var(--font-size-h2);
     font-weight: 700;
+    color: var(--color-blue-800);
 }
 
 h3, .h3{
