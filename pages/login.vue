@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import * as v from 'valibot'
 import type {FormSubmitEvent} from '@nuxt/ui'
-import { useAuthStore } from '~/store/auth'
+import {useAuthStore} from '~/store/auth'
 
 const schema = v.object({
   username: v.pipe(
@@ -27,16 +27,18 @@ const resetForm = () => {
 }
 
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
-  await register()
+  await login()
 }
 
-// Register
-const baseUrl = "https://simeon.back.dlfcaroline.com"
-const toast = useToast()
-const router = useRouter()
-const authStore = useAuthStore()
+// Login
+const baseUrl = "https://simeon.back.dlfcaroline.com";
+const toast = useToast();
+const router = useRouter();
+const authStore = useAuthStore();
+const {token, authenticated} = storeToRefs(authStore)
+const config = useRuntimeConfig();
 
-const register = async () => {
+const login = async () => {
   try {
     const res = await fetch(`${baseUrl}/api/login_check`, {
       method: 'POST',
@@ -59,7 +61,7 @@ const register = async () => {
         color: 'error',
         duration: 5000
       })
-    }else {
+    } else {
 
       toast.add({
         title: 'Connexion réussie',
@@ -68,9 +70,24 @@ const register = async () => {
         duration: 3000
       })
 
-      authStore.setToken(responseData)
-      //recup user ?
+      authStore.setToken(responseData.token)
 
+      try {
+        const res = await fetch(`${config.public.baseUrlApi}/user/profile`, {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + responseData.token,
+          },
+        });
+
+        if (res.ok) {
+          const userData = await res.json();
+          authStore.setCurrentUser(userData)
+        }
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
       await router.push('/')
     }
 
@@ -79,7 +96,6 @@ const register = async () => {
     resetForm()
   }
 }
-
 
 
 </script>
@@ -92,33 +108,32 @@ const register = async () => {
       </h1>
     </div>
 
-    <!-- Partie droite (modifiée) -->
     <div class="right flex flex-col justify-center items-center md:w-1/2 p-8 md:p-12 lg:p-20">
       <div class="w-full max-w-md">
-        <Logo class="hidden md:block mb-8 mx-auto" />
+        <Logo class="hidden md:block mb-8 mx-auto"/>
         <UForm
             :schema="v.safeParser(schema)"
             :state="state"
             class="space-y-6 w-full"
             @submit="handleSubmit"
         >
-          <UFormField label="Username" name="username" class="w-full">
+          <UFormField class="w-full" label="Username" name="username">
             <UInput v-model="state.username" class="w-full"/>
           </UFormField>
 
-          <UFormField label="Password" name="password" class="w-full">
-            <UInput v-model="state.password" type="password" class="w-full"/>
+          <UFormField class="w-full" label="Password" name="password">
+            <UInput v-model="state.password" class="w-full" type="password"/>
           </UFormField>
 
-          <Button type="submit" class="w-full" label="Se connecter" />
+          <Button class="w-full" label="Se connecter" type="submit"/>
         </UForm>
 
         <div class="mt-8 text-center">
           <p>Pas encore de compte ?</p>
           <ULink
-              to="/register"
               active-class="text-primary"
               class=""
+              to="/register"
           >
             S'inscrire
           </ULink>

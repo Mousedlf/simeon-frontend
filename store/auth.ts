@@ -1,53 +1,39 @@
-import {defineStore} from 'pinia';
-import Cookies from 'universal-cookie';
-import type {UserProfile} from "~/types/profile";
+import Cookies from "universal-cookie";
+import type {UserProfile} from "~/types/user-profile";
 
-export const useAuthStore = defineStore('auth',
-    () => {
-        const cookies = new Cookies(null, {path: '/'});
-       // const currentUser: UserProfile = ref(null);
-        const config = useRuntimeConfig();
-        const router = useRouter();
+export const useAuthStore = defineStore('auth', () => {
+    const cookies = new Cookies(null, {path: '/'});
+    const router = useRouter();
 
-        async function getCurrentUser(): Promise<UserProfile | null> {
-            if (!cookies.get('token')) return null;
+    const token = ref<string | null>(cookies.get('token') || null);
+    const authenticated = computed(() => !!token.value);
 
-            try {
-                const res = await fetch(`${config.public.baseUrlApi}/user/profile`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + cookies.get('token'),
-                    }
-                });
+    const user = ref<UserProfile | null>(null);
 
-                if(!res.ok) return null;
-
-                const userData = await res.json()
-
-                console.log(userData)
-
-                return userData;
-
-            } catch (error) {
-                console.error(error);
-                return null;
-            }
+    function setCurrentUser(data: UserProfile) {
+        if (data) {
+            user.value = {
+                id: data.id,
+                username: data.username,
+                email: data.email,
+                created_at: data.created_at,
+                public: data.public,
+                image_src: ''
+            };
+           // cookies.set('user', user.value);
         }
+    }
 
-        function authenticated(): boolean {
-            return !!cookies.get('token');
-        }
+    function setToken(newToken: string) {
+        token.value = newToken;
+        cookies.set('token', newToken);
+    }
 
-        function setToken(token: string) {
-            cookies.set('token', token);
-        }
+    function logout() {
+        token.value = null;
+        cookies.remove('token');
+        router.push('/login');
+    }
 
-        function logout() {
-            cookies.remove('token');
-            router.push('/login');
-        }
-
-        return {cookies, setToken, logout, authenticated, getCurrentUser};
-    },
-    {persist: true}
-)
+    return {token, authenticated, setToken, logout, setCurrentUser, user};
+}, {persist: true});

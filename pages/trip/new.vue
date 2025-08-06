@@ -117,9 +117,10 @@ const stepperItems = ref([
 <template>
   <div class="h-screen">
     <Subheader
-        title="Créer un nouveau voyage">
-      <slot>
-      </slot>
+        title="Créer un nouveau voyage"
+        bg-color="bg-blue-500"
+    >
+
     </Subheader>
 
 
@@ -181,7 +182,7 @@ const stepperItems = ref([
             <UInputMenu multiple :items="items" delete-icon="i-lucide-trash" /> <!--  et v-model -->
           </div>
 
-          <UButton label="Ajouter plus tard" variant="outline" />
+          <Button label="Ajouter plus tard" variant="outline" redirect="/"/>
           <UButton label="Enregistrer" />
         </template>
 

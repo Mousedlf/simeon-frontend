@@ -9,17 +9,24 @@ defineProps({
     type: String,
     required: false
   },
+  bgColor: {
+    type: String,
+    default: 'bg-primary-500'
+  },
 })
 
 </script>
 
 <template>
 
-  <div class="bg-white">
-    <div class="px-2 bg-primary-500 py-16 flex items-center flex-col mb-4 md:mb-16">
-      <h1>{{ title }}</h1>
-      <p>{{ text }}</p>
-      <slot ></slot>
+  <div>
+    <div :class="['px-2', bgColor, 'py-12', 'flex', 'items-center', 'flex-col', 'mb-4', 'md:mb-16']">
+      <UContainer>
+        <h1>{{ title }}</h1>
+        <p>{{ text }}</p>
+        <slot ></slot>
+      </UContainer>
+
     </div>
   </div>
 

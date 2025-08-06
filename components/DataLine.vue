@@ -29,14 +29,14 @@ const categoryMap = {
   drinks: { icon: 'i-maki:bar', name: 'Boissons' },
   museum: { icon: 'ic-baseline-museum', name: 'Musée' },
   activity: { icon: 'ic-round-location-on', name: 'Activité' },
-  shopping: { icon: '', name: 'Shopping' },
+  shopping: { icon: 'ic:outline-shopping-cart', name: 'Shopping' },
   groceries: { icon: 'ic-baseline-shopping-cart', name: 'Courses' },
   cleaning: { icon: 'ic-baseline-cleaning-services', name: 'Nettoyage' },
   housing: { icon: 'ic-baseline-house', name: 'Hôtel' },
   flight: { icon: 'ic-baseline-airplanemode-active', name: 'Vol' },
   coffee: { icon: 'ic-baseline-local-cafe', name: 'Caffé' },
-  withdrawal: { icon: 'ic-baseline-local-cafe', name: 'Caffé' },
-  default: { icon: '', name: 'pas défini' },
+  withdrawal: { icon: 'streamline-ultimate:accounting-coins', name: 'Retrait' },
+  default: { icon: 'fluent:animal-turtle-16-filled', name: 'pas défini' },
 }
 
 const categoryInfo = computed(() => categoryMap[props.category] || { icon: '❓', name: 'Inconnu' })

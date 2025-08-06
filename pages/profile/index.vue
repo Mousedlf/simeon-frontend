@@ -2,17 +2,13 @@
 
 import {useAuthStore} from "~/store/auth";
 
-const authStore = useAuthStore();
-
-
-// recup user du store
+const { user } = storeToRefs(useAuthStore())
 
 </script>
 
 <template>
   <Subheader
-      title="Bonjour [nom]"
-  />
+      :title="`Bonjour ${user?.username}`"  />
 
   <UContainer>
     <div>
@@ -38,16 +34,16 @@ const authStore = useAuthStore();
         <dl class="divide-y divide-gray-100">
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class=" font-medium text-gray-900">pseudo</dt>
-            <dd class="mt-1  text-gray-700 sm:col-span-2 sm:mt-0">aa</dd>
+            <dd class="mt-1  text-gray-700 sm:col-span-2 sm:mt-0">{{ user?.username }}</dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class=" font-medium text-gray-900">email</dt>
-            <dd class="mt-1  text-gray-700 sm:col-span-2 sm:mt-0">aa</dd>
+            <dd class="mt-1  text-gray-700 sm:col-span-2 sm:mt-0">{{ user?.email }}</dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
             <dt class=" font-medium text-gray-900">visibilité</dt>
             <dd class="mt-1  text-gray-700 sm:col-span-2 sm:mt-0">
-              <USwitch label="privé"/>
+              {{ user?.public ? 'public' : 'privé' }}
             </dd>
           </div>
           <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">

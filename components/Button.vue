@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 defineProps({
   label: {
     type: String,
@@ -7,6 +6,9 @@ defineProps({
   },
   redirect:{
     type: String,
+  },
+  size:{
+    type:undefined
   }
 
 });
@@ -15,9 +17,9 @@ defineProps({
 
 <template>
 
-  <UButton class="font-semibold text-md mx-2"
-           block type="submit"
+  <UButton class="font-semibold mr-2 bg-blue-500 hover:bg-blue-800 text-center"
            :to="redirect"
+           size="md"
   >
     {{ label }}
   </UButton>

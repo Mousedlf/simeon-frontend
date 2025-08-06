@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import type { Trip } from '~/types/trip';
-import Cookies from "universal-cookie";
+import type {Trip} from '~/types/trip';
+import {useAuthStore} from "~/store/auth";
 
 const tabs = [{
   label: 'A venir',
@@ -11,58 +11,48 @@ const tabs = [{
   slot: 'past',
 }]
 
-const cookies = new Cookies();
-const config = useRuntimeConfig();
 const trips = ref<Trip[]>([]);
-const router = useRouter();
+const {user} = storeToRefs(useAuthStore());
 
-async function getTrips(){
-  try{
 
-    const token = cookies.get('token')
+async function getTrips() {
+  const { data: resData, error } = await useAuthenticatedFetch(`/trip/all/${user.value?.id}`, {
+    method: 'GET',
+  });
 
-    if (!token) {
-      await router.push('/login');
-    }
-
-    const res = await fetch(`${config.public.baseUrlApi}/trip/all/10`, { // authenticatedFetch
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.token}` ,
-      },
-    });
-
-    trips.value = await res.json();
-
-  }catch(error){
-    console.log("catch", error)
+  if (resData.value) {
+    trips.value = resData.value as Trip[];
+    console.log(trips.value)
+  } else {
+    console.error("Erreur de récupération des données de voyage :", error.value);
+    trips.value = [];
   }
 }
 
+
 const upcomingTrips = computed(() => {
   const now = new Date();
-  return trips.value.filter(trip => new Date(trip.startDate) >= now);
+  return trips.value.filter(trip => new Date(trip.startDate) >= now) || [];
 });
 
 const pastTrips = computed(() => {
   const now = new Date();
-  return trips.value.filter(trip => new Date(trip.endDate) < now);
+  return trips.value.filter(trip => new Date(trip.endDate) < now) || [];
 });
+
 
 onMounted(() => {
   getTrips();
 });
 
-const defaultTripImage = 'https://www.bagagesavivre.fr/media/9752/big/voyage-avion-conseils.jpg';
+const defaultTripImage = 'https://i-de.unimedias.fr/2023/12/07/det1-peyresourd-0341-6571e6b76b623.jpg?auto=format%2Ccompress&crop=faces&cs=tinysrgb&fit=max&w=1050';
 const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCQ5uDxEKaeg-oV_AKOqwnTFoxR1gHUZ1EwQ&s';
 
 ///
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const day = date.getDate();
-  const month = date.toLocaleString('fr-FR', { month: 'long' });
-  const year = date.getFullYear();
+  const month = date.toLocaleString('fr-FR', {month: 'long'});
   return `${day} ${month.charAt(0).toUpperCase() + month.slice(1)}`;
 }
 
@@ -81,7 +71,6 @@ function formatDateRange(startDate: string, endDate: string): string {
 
     <Subheader
         title="Une phrase suberbe pour introduire les voyages"
-        text="Though the specification doesn't put requirements on the name of classes, web developers are encouraged"
     >
       <div class="container align-middle border border-white py-6 mt-6">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -91,7 +80,7 @@ function formatDateRange(startDate: string, endDate: string): string {
               <dd class="order-first text-2xl md:text-4xl font-semibold tracking-tight ">54</dd>
             </div>
             <div class="mx-auto flex max-w-xs flex-col">
-              <dt class="text-base/7 text-gray-600">villes visitées</dt>
+              <dt class="text-base/7 text-gray-600">pays visités</dt>
               <dd class="order-first text-2xl md:text-4xl font-semibold tracking-tight ">4</dd>
             </div>
             <div class="mx-auto flex max-w-xs flex-col">
@@ -105,41 +94,46 @@ function formatDateRange(startDate: string, endDate: string): string {
 
     <UContainer>
       <div class="md:flex md:items-center md:justify-between">
-        <UTabs :items="tabs"
-               :default-index="0"
-               class=" w-full py-0"
-               variant="link"
+        <UTabs :default-index="0"
+               :items="tabs"
+               class=" w-full"
                size="xl"
+               variant="link"
         >
           <template #upcoming="{ item }">
 
             <div class="">
+              <div v-if="upcomingTrips?.length === 0" class="py-16">
+                <p class="italic text-gray-500">Pas de voyages à venir.</p>
+                <a class="accent-blue-800 underline" href="/trip/new">Ajouter un voyage</a>
+              </div>
+
               <div v-for="trip in upcomingTrips" :key="trip.id" class="group relative mb-2">
-                  <a class="flex"
-                     :href="'/trip/'+ trip.id">
-                    <div
-                        class="h-56 w-full md:w-1/2 overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
-                      <img :src="trips.imageSrc || defaultTripImage" alt="image" class="size-full object-cover"/>
-                    </div>
-                    <div class="ml-6">
-                      <h3 class="mt-4 text-gray-700">{{ trip.name }}</h3>
-                      <p>{{ trip.description }}</p>
-                      <span class="text-gray-400 flex align-middle mt-2">
-                        <UIcon name="i-heroicons-calendar-days-solid" class="w-5 h-5"/>{{ formatDateRange(trip.startDate, trip.endDate) }}
+                <a :href="'/trip/'+ trip.id"
+                   class="flex">
+                  <div
+                      class="h-56 w-full md:w-1/2 overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
+                    <img :src="trip.imageSrc || defaultTripImage" alt="image" class="size-full object-cover"/>
+                  </div>
+                  <div class="ml-6">
+                    <h3 class="mt-4 text-gray-700">{{ trip.name }}</h3>
+                    <p>{{ trip.description }}</p>
+                    <span class="text-gray-400 flex align-middle mt-2">
+                        <UIcon class="w-5 h-5"
+                               name="i-heroicons-calendar-days-solid"/>{{ formatDateRange(trip.startDate, trip.endDate) }}
                       </span>
 
-                      <div class="hidden md:block mt-3">
-                        <UAvatarGroup v-for="participant in trip.participants">
-                          <UAvatar
-                              :src="participant.imageSrc || defaultProfileImage"
-                              alt="participant"
-                              size="lg"
-                          />
-
-                        </UAvatarGroup>
-                      </div>
+                    <div class="hidden md:block mt-3">
+                      <UAvatarGroup v-for="participant in trip.participants">
+                        <UAvatar
+                            :src="participant.imageSrc || defaultProfileImage"
+                            alt="participant"
+                            size="lg"
+                        />
+                      </UAvatarGroup>
                     </div>
-                  </a>
+                  </div>
+                </a>
               </div>
             </div>
 
@@ -147,21 +141,21 @@ function formatDateRange(startDate: string, endDate: string): string {
 
           <template #past="{ item }">
 
-            <div class="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-8 mt-8 mb-28">
               <div v-for="trip in pastTrips" :key="trip.id" class="group relative ">
-                  <a :href="'/trip/'+ trip.id">
-                    <div
-                        class="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
-                      <img :src="trip.imageSrc || defaultTripImage" :alt="trip.imageAlt" class="size-full object-cover"/>
-                    </div>
-                    <h4 class="mt-4 text-sm text-gray-700">
-                        <span class="absolute inset-0"/>{{ trip.name }}
-                    </h4>
-                      <p class="text-gray-400 flex align-middle">
-                        <UIcon name="i-heroicons-calendar-days-solid" class="w-5 h-5"/>
-                        {{ formatDateRange(trip.startDate, trip.endDate) }}
-                      </p>
-                  </a>
+                <a :href="'/trip/recap/'+ trip.id">
+                  <div
+                      class="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
+                    <img :alt="trip.imageAlt" :src="trip.imageSrc || defaultTripImage" class="size-full object-cover"/>
+                  </div>
+                  <h4 class="mt-4 text-sm text-gray-700">
+                    <span class="absolute inset-0"/>{{ trip.name }}
+                  </h4>
+                  <p class="text-gray-400 flex align-middle">
+                    <UIcon class="w-5 h-5" name="i-heroicons-calendar-days-solid"/>
+                    {{ formatDateRange(trip.startDate, trip.endDate) }}
+                  </p>
+                </a>
               </div>
             </div>
 

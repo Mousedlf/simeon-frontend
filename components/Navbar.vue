@@ -2,11 +2,12 @@
 
 import {useAuthStore} from "~/store/auth";
 
-const authStore = useAuthStore()
-const isAuthenticated = authStore.authenticated;
 const showDropdown = ref(false);
 const showMobileMenu = ref(false);
 const route = useRoute();
+
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
@@ -38,12 +39,8 @@ const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd
       </a>
 
       <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-        <div v-if="!isAuthenticated" class="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/login" class="text-sm/6 font-semibold text-gray-900">Log in <span
-              aria-hidden="true">&rarr;</span></a>
-        </div>
-        <div v-else class="flex items-center gap-4">
-          <UButton redirect="/trip/new"
+        <div class="flex items-center gap-4">
+          <Button redirect="/trip/new"
                   label="Ajouter un voyage"
                   class="hidden md:block"
                   size="md"
@@ -53,15 +50,15 @@ const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd
           <div class="relative">
             <button @click="toggleDropdown" type="button"
                     class="flex text-sm  rounded-full hover:ring-4 hover:ring-blue-300">
-              <img class="w-8 h-8 rounded-full" :src="authStore.user?.imageSrc || defaultProfileImage" alt="Avatar">
+              <img class="w-8 h-8 rounded-full" :src="user?.image_src || defaultProfileImage" alt="Avatar">
             </button>
 
             <!-- Dropdown -->
             <div v-show="showDropdown"
                  class="absolute right-0 z-50 mt-2 w-56 md:w-48 origin-top-right rounded-md  py-1 shadow-lg bg-blue-300  focus:outline-none ">
               <div class="px-4 py-3">
-                <span class="block md:text-sm text-gray-900">{{ authStore.user?.name || "@pseudonyme" }}</span>
-                <span class="block md:text-sm text-gray-500 truncate">{{ authStore.user?.email || "mail@mail.com" }}</span>
+                <span class="block md:text-sm text-gray-900">{{ user?.username || "@pseudonyme" }}</span>
+                <span class="block md:text-sm text-gray-500 truncate">{{ user?.email || "mail@mail.com" }}</span>
               </div>
               <ul class="py-2">
                 <USeparator/>
