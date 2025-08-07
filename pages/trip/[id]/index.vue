@@ -1,22 +1,42 @@
 <script lang="ts" setup>
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
 import {CalendarDate} from "@internationalized/date";
 import type {Trip} from "~/types/trip";
+import type {Expense} from "~/types/expense";
+import type { Profile } from '~/types/profile';
 
 const activePanel = ref('');
 const route = useRoute();
-const tripId = route.params.id;
+const tripId = route.params.id as string;
 
 function open(panel: 'map' | 'details') {
   if (activePanel.value === panel) {
-    activePanel.value = ''; // Fermer le panel s'il est déjà ouvert
+    activePanel.value = '';
   } else {
-    activePanel.value = panel; // Ouvrir le panel et fermer l'autre
+    activePanel.value = panel;
   }
 }
 
-const value = ref({start: new CalendarDate(2024, 11, 26), end: new CalendarDate(2024, 11, 30)})
-const trip = ref<Trip | null>(null);
+const {data: tripData, error: tripError, refresh} = await useAuthenticatedFetch< Trip | null>(`/trip/${tripId}`);
+
+const tripDays = ref<{ start: CalendarDate | null, end: CalendarDate | null }>({
+  start: null,
+  end: null,
+});
+
+if (tripError.value) {
+  console.error('Erreur lors de la récupération du voyage:', tripError.value);
+}
+
+
+const {data: expensesData, error: expensesError} = await useAuthenticatedFetch(`/expense/all/trip/${tripId}`);
+const commonExpenses = ref<Expense[]>(expensesData.value?.common.expenses as Expense[] || []);
+const personalExpenses = ref<Expense[]>(expensesData.value?.personal.expenses as Expense[] || []);
+const commonExpensesTotal = ref<number>(expensesData.value?.common.total || 0);
+const personalExpensesTotal = ref<number>(expensesData.value?.personal.total || 0);
+if (expensesError.value) {
+  console.error('Erreur lors de la récupération des dépenses:', expensesError.value);
+}
 
 const tabs = [{
   label: 'Itinéraire',
@@ -29,82 +49,100 @@ const tabs = [{
   slot: 'documents'
 }]
 
-const days = [{
-  label: "26 Novembre",
-  activitiesCount: "5"
-}]
-
-const expenses = [{
-  category: 'coffee',
-  price: '5.00'
-}, {
-  category: 'museum',
-  price: '9.00'
-}, {
-  category: 'restaurant',
-  price: '15.00'
-}, {
-  category: 'drinks',
-  price: '5.00'
-},
-]
-
 const documents = [{
   title: 'Réservation musée X',
   category: 'museum',
-}, {
-  title: 'Réservation parc X',
-  category: 'museum',
-}, {
-  title: 'Bus 24837',
-  category: 'transport',
-}, {
-  title: 'Vol FR-GR',
-  category: 'flight',
-},
-]
-
-const participants = [{
-  name: "Thomas",
-}, {
-  name: "Thibo",
-}
-]
+}]
 
 const stats = [{
   text: "Budget journalier",
   spent: 12,
   total: 50,
   progress: 24
-}, {
-  text: "Budget total",
-  spent: 134,
-  total: 1000,
-  progress: 13
+}]
+
+
+const {data: appUsers, error: appUsersError } = await useAuthenticatedFetch<Profile[] | null>('/user/all/public');
+if (appUsersError.value) {
+  console.error('Erreur lors de la récupération des utilisateurs:', appUsersError.value);
 }
-]
+const formattedUsers = computed(() => {
+  return appUsers.value.map(user => ({
+    label: user.username,
+    value: user.id,
+    avatar: {
+      src: user.imageSrc || `https://ui-avatars.com/api/?name=${user.username}&background=random`,
+    }
+  }));
+});
 
-onMounted(() => {
-  getTrip()
-})
-
-async function getTrip() {
-  const { data: resData, error } = await useAuthenticatedFetch(`/trip/${tripId}`, {
-    method: 'GET',
-  })
-
-  if (resData.value) {
-    trip.value = resData.value as Trip;
-  } else {
-    console.error("Erreur de récupération des données du voyage :", error.value);
-    trip.value = null;
-  }
-
-}
+const toast = useToast();
 
 function addParticipant() {
 }
 
+const editTripFormState = reactive({
+  name:  '',
+  description: '',
+});
+
+async function editTripFormSubmit() {
+  try {
+    await useAuthenticatedFetch(`/trip/${tripId}/edit`, {
+      method: 'PUT',
+      body: editTripFormState,
+    });
+    await refresh();
+
+    toast.add({
+      title: 'Voyage mis à jour avec succès',
+      color: 'success',
+      duration: 5000
+    })
+  } catch (error) {
+    toast.add({
+      title: 'Erreur lors de la mise à jour du voyage',
+      color: 'error',
+      duration: 5000
+    })
+    console.error('Erreur lors de la mise à jour du voyage:', error);
+  }
+}
+
+watch(tripData, (newTripData) => {
+  if (newTripData) {
+    editTripFormState.name = newTripData.name;
+    editTripFormState.description = newTripData.description;
+
+    console.log('État du formulaire mis à jour:', editTripFormState)
+
+    if (newTripData.startDate && newTripData.endDate) {
+      const start = new Date(newTripData.startDate);
+      const end = new Date(newTripData.endDate);
+
+      tripDays.value.start = new CalendarDate(
+          start.getFullYear(),
+          start.getMonth() + 1,
+          start.getDate(),
+      );
+
+      tripDays.value.end = new CalendarDate(
+          end.getFullYear(),
+          end.getMonth() + 1,
+          end.getDate(),
+      );
+    }
+  }
+}, { immediate: true });
+
+const isEditModalOpen = ref(false);
+watch(isEditModalOpen, (isOpen) => {
+  if (isOpen && tripData.value) {
+    editTripFormState.name = tripData.value.name;
+    editTripFormState.description = tripData.value.description;
+    console.log('Formulaire initialisé à l\'ouverture de la modal');
+  }
+});
 </script>
 
 <template>
@@ -112,7 +150,8 @@ function addParticipant() {
 
     <div class="p-2 bg-primary-500 lg:hidden">
       <div class="flex justify-between items-center">
-        <h1>{{ trip?.name }}</h1>
+
+        <h1>{{ tripData?.name }}</h1>
         <button class="btn" @click="open('map')">
           Carte
         </button>
@@ -122,9 +161,7 @@ function addParticipant() {
       </div>
 
       <div v-if="activePanel === 'details'" class="">
-        <p>{{ trip?.description }}</p>
-        <p>alaalla</p>
-        <p>zjzzj</p>
+        <p>{{ tripData?.description }}</p>
       </div>
 
       <div v-if="activePanel === 'map'" class="">
@@ -133,12 +170,12 @@ function addParticipant() {
     </div>
 
     <div class="w-screen h-full flex bg-white border-t border-t-gray-200">
-      <UDrawer class="hidden lg:block" direction="left" :handle="false">
+      <UDrawer :handle="false" class="hidden lg:block" direction="left">
         <UButton
-            variant="link"
+            aria-label="Ouvrir les infos du voyage"
             class="bg-primary-500 rounded-none h-full flex items-start justify-center pt-4"
             icon="i-lucide-chevron-right"
-            aria-label="Ouvrir les infos du voyage"
+            variant="link"
         />
 
         <template #content>
@@ -146,22 +183,43 @@ function addParticipant() {
             <!-- Informations -->
             <div>
               <div class="flex justify-between items-center">
-                <h1 class="text-xl font-semibold text-gray-900">{{ trip?.name || "pas de nom" }}</h1>
-                <!-- Optional settings button could go here -->
+                <h1 class="text-xl font-semibold text-gray-900">{{ tripData?.name || "pas de nom" }}</h1>
               </div>
-              <p class="text-gray-600 mt-1">{{ trip?.description || "pas de description" }}</p>
+              <p class="text-gray-600 mt-1">{{ tripData?.description || "pas de description" }}</p>
+              <UModal
+                  title="Modifier informations du voyage"
+                  v-model="isEditModalOpen"
+              >
+                <UButton color="neutral" label="Editer informations" variant="subtle"     @click="isEditModalOpen = true"/>
+
+                <template #body>
+                  <UForm :state="editTripFormState" class="space-y-4" @submit="editTripFormSubmit">
+                    <UFormField label="Nom du voyage" name="name">
+                      <UInput v-model="editTripFormState.name"/>
+                    </UFormField>
+
+                    <UFormField label="Description" name="description">
+                      <UTextarea v-model="editTripFormState.description"/>
+                    </UFormField>
+
+                    <div class="flex justify-end gap-2">
+                      <UButton type="submit" label="Enregistrer" color="primary"/>
+                    </div>
+                  </UForm>
+                </template>
+              </UModal>
             </div>
 
             <!-- Calendrier -->
             <div>
               <h2 class="text-sm font-medium text-gray-700 mb-2">Dates du voyage</h2>
               <UCalendar
-                  v-model="value"
+                  v-model="tripDays"
                   :year-controls="false"
+                  class="border border-blue-500 p-2"
                   color="primary"
                   range
                   size="sm"
-                  class="border border-blue-500 p-2"
                   week-starts-on="1.0"
               />
             </div>
@@ -170,8 +228,14 @@ function addParticipant() {
             <div>
               <h2 class="text-sm font-medium text-gray-700 mb-2">Résumé des jours</h2>
               <ul class="list-disc pl-5 space-y-1 text-gray-600">
-                <li v-for="day in days" :key="day.label">
-                  {{ day.label }} — {{ day.activitiesCount }} activité(s)
+                <li v-for="day in tripData?.daysOfTrip" :key="day.label">
+                  {{
+                    new Intl.DateTimeFormat('fr-FR', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short'
+                    }).format(new Date(day.date))
+                  }} — <!--{{ day.activitiesCount }} activité(s)-->
                 </li>
               </ul>
             </div>
@@ -186,12 +250,20 @@ function addParticipant() {
                   <UButton color="neutral" label="Inviter un participant" variant="subtle"/>
 
                   <template #body>
-                    <p>kssksk</p>
+                    <UFormField label="Qui voudrais-tu ajouter au voyage?" name="invitedParticipants">
+                      <UInputMenu
+                          v-model="invitedParticipants"
+                          :items="formattedUsers"
+                          class="w-full"
+                          delete-icon="i-lucide-trash"
+                          multiple
+                      />
+                    </UFormField>
                   </template>
                 </UModal>
               </div>
               <ul class="space-y-1 text-gray-600 mb-2">
-                <li v-for="participant in trip?.participants" :key="participant.name">
+                <li v-for="participant in tripData?.participants" :key="participant.participant.id">
                   <UAvatar src="https://github.com/benjamincanac.png"/>
                   {{ participant.participant.username }}
                 </li>
@@ -213,7 +285,7 @@ function addParticipant() {
         <template #itinerary="{ item }"><!-- PAS LA BONNE HAUTEUR ! -->
           <div class="flex h-full overflow-x-auto">
             <div class="lg:w-1/2 p-4 h-full">
-              <UTabs :default-index="0" :items="days" size="sm"/>
+              <UTabs :default-index="0" :items="tripData?.daysOfTrip" size="sm"/>
 
               <ItineraryPlace
                   :open="true"
@@ -253,14 +325,29 @@ function addParticipant() {
 
           <div class="flex">
             <div class="w-full h-full lg:w-1/2 p-4 ">
-              <!--              <h3>Dépenses du ...</h3>-->
-              <div v-for="expense in expenses" :key="item.id" class="">
-                <DataLine
-                    :category="expense.category"
-                    :price="expense.price"
-                    type="expense"
-                />
+              <h3 class="text-lg font-semibold mb-2">Dépenses communes</h3>
+              <div v-if="commonExpenses && commonExpenses.length > 0">
+                <div v-for="expense in commonExpenses" :key="expense.id" class="">
+                  <DataLine
+                      :category="expense.category"
+                      :sum="expense.sum"
+                      type="expense"
+                  />
+                </div>
               </div>
+              <div v-else class="text-gray-500">Pas de dépenses communes</div>
+
+              <h3 class="text-lg font-semibold mt-6 mb-2">Dépenses personnelles</h3>
+              <div v-if="personalExpenses && personalExpenses.length > 0">
+                <div v-for="expense in personalExpenses" :key="expense.id" class="">
+                  <DataLine
+                      :category="expense.category"
+                      :sum="expense.sum"
+                      type="expense"
+                  />
+                </div>
+              </div>
+              <div v-else class="text-gray-500">Pas de dépenses personnelles</div>
             </div>
             <div class="ml-10">
               <UModal
@@ -272,12 +359,12 @@ function addParticipant() {
 
                 <template #body>
                   <div class="flex flex-col justify-center">
-                    <Button label="Manuellement" redirect="/trip/expense/new"/>
+                    <Button :redirect="`/trip/${tripId}/expense/new`" label="Manuellement"/>
                     <USeparator label="ou"/>
                     <UModal title="Prendre une photo d'un reçu">
-                      <UButton label="Photo d'un reçu" color="neutral" variant="subtle" />
+                      <UButton color="neutral" label="Photo d'un reçu" variant="subtle"/>
                       <template #body>
-                        <Placeholder class="h-48" />
+                        <Placeholder class="h-48"/>
                       </template>
                     </UModal>
                   </div>
@@ -303,7 +390,7 @@ function addParticipant() {
 
           <div class="flex">
             <div class="w-full h-full lg:w-1/2 p-4 ">
-              <div v-for="document in documents" :key="item.id" class="">
+              <div v-for="document in documents" :key="document.id" class="">
                 <DataLine
                     :category="document.category"
                     :title="document.title"

@@ -20,13 +20,15 @@ export const useAuthStore = defineStore('auth', () => {
                 public: data.public,
                 image_src: ''
             };
-           // cookies.set('user', user.value);
+            // cookies.set('user', user.value);
         }
     }
 
     function setToken(newToken: string) {
         token.value = newToken;
-        cookies.set('token', newToken);
+        cookies.set('token', newToken, {
+            path: '/', maxAge: 60 * 60 // une heure
+        });
     }
 
     function logout() {

@@ -2,6 +2,7 @@
 
 import type {Trip} from '~/types/trip';
 import {useAuthStore} from "~/store/auth";
+import {ref} from "vue";
 
 const tabs = [{
   label: 'A venir',
@@ -11,38 +12,27 @@ const tabs = [{
   slot: 'past',
 }]
 
-const trips = ref<Trip[]>([]);
+// const trips = ref<Trip[]>([]);
 const {user} = storeToRefs(useAuthStore());
 
-
-async function getTrips() {
-  const { data: resData, error } = await useAuthenticatedFetch(`/trip/all/${user.value?.id}`, {
-    method: 'GET',
-  });
-
-  if (resData.value) {
-    trips.value = resData.value as Trip[];
-    console.log(trips.value)
-  } else {
-    console.error("Erreur de récupération des données de voyage :", error.value);
-    trips.value = [];
-  }
+const {
+  data: tripsData,
+  error: tripsError
+} = await useAuthenticatedFetch(`/trip/all/${user.value?.id}`, {method: 'GET',});
+const trips = ref<Trip[]>(tripsData.value as Trip[] || []);
+console.log(trips.value);
+if (tripsError.value) {
+  console.error('Erreur lors de la récupération du voyage:', tripsError.value);
 }
 
+const today = new Date();
 
 const upcomingTrips = computed(() => {
-  const now = new Date();
-  return trips.value.filter(trip => new Date(trip.startDate) >= now) || [];
+  return trips.value.filter(trip => new Date(trip.startDate) >= today);
 });
 
 const pastTrips = computed(() => {
-  const now = new Date();
-  return trips.value.filter(trip => new Date(trip.endDate) < now) || [];
-});
-
-
-onMounted(() => {
-  getTrips();
+  return trips.value.filter(trip => new Date(trip.endDate) < today);
 });
 
 const defaultTripImage = 'https://i-de.unimedias.fr/2023/12/07/det1-peyresourd-0341-6571e6b76b623.jpg?auto=format%2Ccompress&crop=faces&cs=tinysrgb&fit=max&w=1050';
@@ -105,7 +95,7 @@ function formatDateRange(startDate: string, endDate: string): string {
             <div class="">
               <div v-if="upcomingTrips?.length === 0" class="py-16">
                 <p class="italic text-gray-500">Pas de voyages à venir.</p>
-                <a class="accent-blue-800 underline" href="/trip/new">Ajouter un voyage</a>
+                <NuxtLink class="accent-blue-800 underline" href="/trip/new">Ajouter un voyage</NuxtLink>
               </div>
 
               <div v-for="trip in upcomingTrips" :key="trip.id" class="group relative mb-2">
@@ -117,18 +107,20 @@ function formatDateRange(startDate: string, endDate: string): string {
                   </div>
                   <div class="ml-6">
                     <h3 class="mt-4 text-gray-700">{{ trip.name }}</h3>
-                    <p>{{ trip.description }}</p>
-                    <span class="text-gray-400 flex align-middle mt-2">
-                        <UIcon class="w-5 h-5"
-                               name="i-heroicons-calendar-days-solid"/>{{ formatDateRange(trip.startDate, trip.endDate) }}
+                    <span class="text-gray-400 flex align-middle mb-2">
+                        <UIcon class="w-5 h-5" name="i-heroicons-calendar-days-solid"/>
+                      {{formatDateRange(trip.startDate, trip.endDate) }}
                       </span>
+                    <p>{{ trip.description }}</p>
+
 
                     <div class="hidden md:block mt-3">
-                      <UAvatarGroup v-for="participant in trip.participants">
+                      <UAvatarGroup v-if="trip.participants.length > 1 " size="lg">
                         <UAvatar
-                            :src="participant.imageSrc || defaultProfileImage"
-                            alt="participant"
-                            size="lg"
+                            v-for="participant in trip.participants"
+                            :key="participant.participant.id"
+                            :alt="participant.participant.username"
+                            :src="participant.participant.imageSrc || defaultProfileImage"
                         />
                       </UAvatarGroup>
                     </div>
@@ -143,7 +135,7 @@ function formatDateRange(startDate: string, endDate: string): string {
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-8 mt-8 mb-28">
               <div v-for="trip in pastTrips" :key="trip.id" class="group relative ">
-                <a :href="'/trip/recap/'+ trip.id">
+                <NuxtLink :to="`/trip/${trip.id}/recap`">
                   <div
                       class="h-56 w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
                     <img :alt="trip.imageAlt" :src="trip.imageSrc || defaultTripImage" class="size-full object-cover"/>
@@ -155,7 +147,7 @@ function formatDateRange(startDate: string, endDate: string): string {
                     <UIcon class="w-5 h-5" name="i-heroicons-calendar-days-solid"/>
                     {{ formatDateRange(trip.startDate, trip.endDate) }}
                   </p>
-                </a>
+                </NuxtLink>
               </div>
             </div>
 

@@ -3,7 +3,7 @@ import type {Message} from "~/types/message";
 
 export interface Conversation {
     id: number;
-    name: string;
-    participants: TripParticipant[];
-    messages: Message[] ;
+    name?: string;
+    participants?: TripParticipant[];
+    messages?: Message[] ;
 }

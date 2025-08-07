@@ -9,8 +9,8 @@ const props = defineProps({
   title: {
     type: String,
   },
-  price: {
-    type: String,
+  sum: {
+    type: Number,
   },
   category: {
     type: String,
@@ -65,7 +65,7 @@ const categoryInfo = computed(() => categoryMap[props.category] || { icon: '❓'
         {{ categoryInfo.name }}
       </UBadge>
 
-      <p v-if="type == 'expense'">{{ price }} €</p>
+      <p v-if="type == 'expense'">{{ sum }} €</p>
 
       <UAvatar v-if="type == 'document'" icon="i-heroicons-arrow-up-on-square" size="md" />
 

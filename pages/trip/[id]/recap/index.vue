@@ -1,17 +1,20 @@
 <script setup lang="ts">
 
+const route = useRoute();
+const tripId = route.params.id;
+
 </script>
 
 <template>
   <Subheader
       title="Recap Trip X" >
   <slot>
-    <Button
-        to="/trip/1"
+    <UButton
+        :to="`/trip/${tripId}`"
         label="Voir le dashboard"
     />
     <Button
-        to="/trip/recap"
+        to=""
         label="Télecharger pdf"
     />
 

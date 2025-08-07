@@ -1,72 +1,33 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '@nuxt/ui'
-import Cookies from 'universal-cookie';
+import useAuthenticatedFetch from '~/composables/useAuthenticatedFetch';
 
-const config = useRuntimeConfig();
-const cookies = new Cookies();
 const toast = useToast();
-
 const state = reactive({
-  name: undefined,
-  description: undefined,
-  startDate: undefined,
-  endDate: undefined,
-  public: undefined
+  name: '',
+  description: '',
+  startDate: '',
+  endDate: '',
+  public: true
 })
 
-async function createTrip(event: FormSubmitEvent<any>) {
-  try{
+const stepper = useTemplateRef('stepper')
+const stepperItems = ref([
+  {
+    slot: "first",
+    title: 'Nom et dates',
+    description: 'Définir informations de base',
+    icon: 'i-lucide-house'
+  },
+  {
+    slot: "second",
+    title: 'Ajout personnes',
+    description: 'Inviter des participants  ',
+    icon: 'i-lucide-truck'
+  },
+])
 
-   const token = cookies.get('token')
-
-    const res = await fetch(`${config.public.baseUrlApi}/trip/new`, { // authenticatedFetch
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.token}` ,
-      },
-      body: JSON.stringify({
-        name: state.name,
-        description: state.description,
-        startDate: state.startDate,
-        endDate: state.endDate,
-      })
-    });
-
-    const responseData = await res.json()
-
-    if(!res.ok){
-      toast.add({
-        title: 'Erreur lors de la creation',
-        description: markRaw(responseData) || '',
-        color: 'error',
-        duration: 5000
-      })
-    } else {
-
-      if(typeof responseData === "string"){
-        toast.add({
-          title: responseData || 'Nouveau voyage créé !',
-          color: 'warning',
-          duration: 5000
-        })
-      } else {
-        toast.add({
-          title: 'Nouveau voyage créé !',
-          color: 'success',
-          duration: 5000
-        })
-        stepper.value?.next();
-      }
-
-    }
-
-  }catch(error){
-    console.log("catch", error)
-  }
-}
-
-const items = ref([
+const participants = ref([
   {
     label: 'benjamincanac',
     value: 'benjamincanac',
@@ -92,26 +53,60 @@ const items = ref([
     }
   }
 ])
-const value = ref(items.value[0]?.value)
 
-const avatar = computed(() => items.value.find(item => item.value === value.value)?.avatar)
+async function createTrip(event: FormSubmitEvent<any>) {
+  try {
+    const { data: resData, error: apiError } = await useAuthenticatedFetch('/trip/new', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: state.name,
+        description: state.description,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        public: state.public
+      }),
+    });
 
-const stepper = useTemplateRef('stepper')
-const stepperItems = ref([
-  {
-    slot: "first",
-    title: 'Nom et dates',
-    description: 'Définir informations de base',
-    icon: 'i-lucide-house'
-  },
-  {
-    slot: "second",
-    title: 'Ajout personnes',
-    description: 'Inviter des participants  ',
-    icon: 'i-lucide-truck'
-  },
-])
+    if (apiError.value) {
 
+      const errorMessage = apiError.value.data?.message || apiError.value.message || 'Une erreur est survenue.';
+      toast.add({
+        title: 'Erreur lors de la création du voyage',
+        description: errorMessage,
+        color: 'error',
+        duration: 5000
+      });
+
+    } else if (resData.value) {
+
+      toast.add({
+        title: 'Nouveau voyage créé !',
+        description: 'Votre voyage a été ajouté avec succès.',
+        color: 'success',
+        duration: 5000
+      });
+
+      stepper.value?.next();
+    } else {
+
+      toast.add({
+        title: 'Erreur inconnue',
+        description: 'La création du voyage n\'a pas retourné de données.',
+        color: 'warning',
+        duration: 5000
+      });
+    }
+
+  } catch (error) {
+    console.error("Erreur inattendue lors de la création du voyage:", error);
+    toast.add({
+      title: 'Erreur inattendue',
+      description: 'Veuillez réessayer.',
+      color: 'error',
+      duration: 5000
+    });
+  }
+}
 </script>
 
 <template>
@@ -120,81 +115,70 @@ const stepperItems = ref([
         title="Créer un nouveau voyage"
         bg-color="bg-blue-500"
     >
-
     </Subheader>
 
-
     <UContainer>
-
       <UStepper ref="stepper"
                 :items="stepperItems"
                 class="w-full"
                 orientation="vertical"
                 disabled
       >
-
-      <template #first >
-        <div class="ml-8">
-          <UForm :state="state"
-                 class="space-y-4 "
-                 @submit="createTrip">
-            <UFormField label="Nom" name="name">
-              <UInput v-model="state.name" type="text" class="w-full" />
-            </UFormField>
-
-            <UFormField label="Description" name="description">
-              <UTextarea v-model="state.description" type="text" :rows="4" class="w-full"/>
-            </UFormField>
-
-            <div class="flex gap-4">
-              <UFormField label="Date de début" name="startDate">
-                <UInput v-model="state.startDate" type="date" />
+        <template #first >
+          <div class="ml-8">
+            <UForm :state="state"
+                   class="space-y-4 "
+                   @submit="createTrip">
+              <UFormField label="Nom" name="name" required>
+                <UInput v-model="state.name" type="text" class="w-full"/>
               </UFormField>
 
-              <UFormField label="Date de fin" name="endDate">
-                <UInput v-model="state.endDate" type="date" />
+              <UFormField label="Description" name="description">
+                <UTextarea v-model="state.description" type="text" :rows="4" class="w-full"/>
               </UFormField>
 
-<!--              // https://ui.nuxt.com/components/calendar#as-a-daterangepicker-->
-            </div>
+              <div class="flex gap-4">
+                <UFormField label="Date de début" name="startDate" required>
+                  <UInput v-model="state.startDate" type="date"  />
+                </UFormField>
 
-            <UFormField name="public">
-              <USwitch
-                  unchecked-icon="i-lucide-x"
-                  checked-icon="i-lucide-check"
-                  default-value
-                  label="Voyage privé"
-                  v-model="state.public"
-              />
-            </UFormField>
+                <UFormField label="Date de fin" name="endDate" required>
+                  <UInput v-model="state.endDate" type="date" />
+                </UFormField>
+              </div>
 
-            <Button type="submit" label="Enregistrer et passer à la prochaine étape" class="mt-10"/>
+              <UFormField name="public">
+                <USwitch
+                    unchecked-icon="i-lucide-x"
+                    checked-icon="i-lucide-check"
+                    label="Voyage public"
+                    v-model="state.public"
+                />
+              </UFormField>
 
-          </UForm>
-        </div>
+              <UButton type="submit" label="Enregistrer et passer à la prochaine étape" class="mt-10" />
 
-      </template>
+            </UForm>
+          </div>
+        </template>
 
         <template #second>
           <div class="ml-8">
-
-          <p>ajout personnes</p>
-            <UInputMenu multiple :items="items" delete-icon="i-lucide-trash" /> <!--  et v-model -->
+            <p>ajout personnes</p>
+            <!-- Ajoute v-model à UInputMenu pour les participants si tu veux les capturer -->
+            <UInputMenu multiple :items="items" delete-icon="i-lucide-trash" />
           </div>
 
-          <Button label="Ajouter plus tard" variant="outline" redirect="/"/>
+          <!-- Utilise UButton avec la prop 'to' pour un comportement de NuxtLink -->
+          <UButton label="Ajouter plus tard" variant="outline" to="/"/>
           <UButton label="Enregistrer" />
         </template>
 
       </UStepper>
 
     </UContainer>
-
   </div>
-
-
 </template>
 
 <style scoped>
-
 </style>
