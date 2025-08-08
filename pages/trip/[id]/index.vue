@@ -3,11 +3,13 @@ import {ref, watch} from 'vue';
 import {CalendarDate} from "@internationalized/date";
 import type {Trip} from "~/types/trip";
 import type {Expense} from "~/types/expense";
-import type { Profile } from '~/types/profile';
+import type { UserProfile } from '~/types/user-profile';
+import { categories } from '~/utils/categories';
 
 const activePanel = ref('');
 const route = useRoute();
 const tripId = route.params.id as string;
+const category = ref<string | null>(null);
 
 function open(panel: 'map' | 'details') {
   if (activePanel.value === panel) {
@@ -32,8 +34,8 @@ if (tripError.value) {
 const {data: expensesData, error: expensesError} = await useAuthenticatedFetch(`/expense/all/trip/${tripId}`);
 const commonExpenses = ref<Expense[]>(expensesData.value?.common.expenses as Expense[] || []);
 const personalExpenses = ref<Expense[]>(expensesData.value?.personal.expenses as Expense[] || []);
-const commonExpensesTotal = ref<number>(expensesData.value?.common.total || 0);
-const personalExpensesTotal = ref<number>(expensesData.value?.personal.total || 0);
+// const commonExpensesTotal = ref<number>(expensesData.value?.common.total || 0);
+// const personalExpensesTotal = ref<number>(expensesData.value?.personal.total || 0);
 if (expensesError.value) {
   console.error('Erreur lors de la récupération des dépenses:', expensesError.value);
 }
@@ -62,7 +64,7 @@ const stats = [{
 }]
 
 
-const {data: appUsers, error: appUsersError } = await useAuthenticatedFetch<Profile[] | null>('/user/all/public');
+const {data: appUsers, error: appUsersError } = await useAuthenticatedFetch<UserProfile[] | null>('/user/all/public');
 if (appUsersError.value) {
   console.error('Erreur lors de la récupération des utilisateurs:', appUsersError.value);
 }
@@ -93,18 +95,19 @@ async function editTripFormSubmit() {
       body: editTripFormState,
     });
     await refresh();
+    isEditModalOpen.value = false;
 
     toast.add({
       title: 'Voyage mis à jour avec succès',
       color: 'success',
       duration: 5000
-    })
+    });
   } catch (error) {
     toast.add({
       title: 'Erreur lors de la mise à jour du voyage',
       color: 'error',
       duration: 5000
-    })
+    });
     console.error('Erreur lors de la mise à jour du voyage:', error);
   }
 }
@@ -143,6 +146,26 @@ watch(isEditModalOpen, (isOpen) => {
     console.log('Formulaire initialisé à l\'ouverture de la modal');
   }
 });
+
+const handleFileUploadError = (error: Error) => {
+  if (error.message.includes('size')) {
+    toast.add({
+      title: 'Fichier trop volumineux',
+      description: 'La taille du fichier ne doit pas dépasser 2 Mo.',
+      color: 'red',
+      icon: 'i-heroicons-exclamation-triangle-20-solid',
+      duration: 5000,
+    });
+  } else {
+    toast.add({
+      title: 'Erreur de téléchargement',
+      description: error.message,
+      color: 'red',
+      icon: 'i-heroicons-exclamation-triangle-20-solid',
+      duration: 5000,
+    });
+  }
+};
 </script>
 
 <template>
@@ -295,16 +318,22 @@ watch(isEditModalOpen, (isOpen) => {
                   name="Nom activité"
                   note=""
               />
-              <div>
-                <UModal
-                    title="Ajouter une destination"
-                >
-                  <UButton label="Ajouter une destination" variant="link"/>
-
-                  <template #body>
-                  </template>
-                </UModal>
-              </div>
+              <ItineraryPlace
+                  :open="true"
+                  :openingHours="[]"
+                  address="Adresse complete, 69000"
+                  imageSrc="data:image/webp;base64,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"
+                  name="Nom activité"
+                  note="super cool"
+              />
+              <ItineraryPlace
+                  :open="true"
+                  :openingHours="[]"
+                  address="Adresse complete, 69000"
+                  imageSrc="data:image/webp;base64,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"
+                  name="Nom activité"
+                  note="super cool"
+              />
               <ItineraryPlace
                   :open="true"
                   :openingHours="[]"
@@ -406,17 +435,36 @@ watch(isEditModalOpen, (isOpen) => {
 
               <template #body>
 
-
-                <UForm class="space-y-4 w-96" @submit="">
-                  <UFormField label="Nom du document" name="name">
-                    <UInput/>
+                <UForm class="space-y-4 w-full" @submit="">
+                  <UFormField label="Nom du document" name="name" class="w-full">
+                    <UInput class="w-full"/>
                   </UFormField>
-                  <!-- categorie -->
-                  <!-- lié a evenemement ? -->
-                  <UFormField description="JPG, GIF or PNG. 2MB Max." label="Image" name="image">
-                    <UFileUpload class="w-96 min-h-48"
-                                 color="neutral" description="formats acceptés : kkjxdv"
-                                 dropzone="true" label="Choisi ou dépose un document"/> <!-- accept-->
+                  <UFormField label="Catégorie">
+                    <div class="grid grid-cols-4 gap-2 border-blue-500">
+                      <UButton
+                          v-for="cat in categories"
+                          :key="cat.name"
+                          :variant="category === cat.name ? 'solid' : 'soft'"
+                          @click="category = cat.name"
+                      >
+                        <Icon :name="cat.icon" class="w-6 h-6"/>
+                        <span class="text-sm">{{ cat.name }}</span>
+                      </UButton>
+                    </div>
+                  </UFormField>
+                  <!-- lier a evenemement/activité ?  -->
+                  <!-- lier a jour de voyage  -->
+                  <UFormField label="Document" name="document">
+                    <UFileUpload
+                        class="w-full min-h-48"
+                        color="neutral"
+                        label="Choisis ou dépose un document"
+                        accept=".pdf, .jpg, .jpeg, .png"
+                        :max-size-kb="2048"
+                        :description="`Formats acceptés : PDF, JPG, JPEG, PNG, GIF. Taille maximale : 2 Mo`"
+                        @error="handleFileUploadError"
+                    />
+                    <!-- taille max? -->
                   </UFormField>
 
                   <UButton color="neutral" label="Valider" type="submit"/>

@@ -1,0 +1,16 @@
+export const categories = [
+    {icon: 'ic-baseline-directions-car-filled', name: 'Transport'},
+    {icon: 'ic-baseline-food-bank', name: 'Restaurant'},
+    {icon: 'ic-baseline-fastfood', name: 'Café'},
+    {icon: 'i-maki:bar', name: 'Boissons'},
+    {icon: 'ic-baseline-museum', name: 'Musée'},
+    {icon: 'ic-round-location-on', name: 'Activité'},
+    {icon: 'ic:outline-shopping-cart', name: 'Shopping'},
+    {icon: 'ic-baseline-shopping-cart', name: 'Courses'},
+    {icon: 'ic-baseline-cleaning-services', name: 'Nettoyage'},
+    {icon: 'ic-baseline-house', name: 'Hôtel'},
+    {icon: 'ic-baseline-airplanemode-active', name: 'Vol'},
+    {icon: 'ic-baseline-local-cafe', name: 'Caffé'},
+    {icon: 'streamline-ultimate:accounting-coins', name: 'retrait'},
+    {icon: 'fluent:animal-turtle-16-filled', name: 'autre'},
+]

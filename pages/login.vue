@@ -30,6 +30,18 @@ const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
   await login()
 }
 
+const validate = (formState: Schema) => {
+  const result = v.safeParse(schema, formState);
+  if (result.success) {
+    return [];
+  }
+
+  return result.issues.map(issue => ({
+    path: issue.path[0]?.key,
+    message: issue.message
+  }));
+};
+
 // Login
 const baseUrl = "https://simeon.back.dlfcaroline.com";
 const toast = useToast();
@@ -112,8 +124,7 @@ const login = async () => {
       <div class="w-full max-w-md">
         <Logo class="hidden md:block mb-8 mx-auto"/>
         <UForm
-            :schema="v.safeParser(schema)"
-            :state="state"
+            :validate="validate" :state="state"
             class="space-y-6 w-full"
             @submit="handleSubmit"
         >

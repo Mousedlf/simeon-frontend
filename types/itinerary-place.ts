@@ -6,4 +6,8 @@ export interface ItineraryPlace {
     open?: boolean;
     openingHours?: [];
     note?: string;
+    coordinates?: {
+        lat: number;
+        long: number;
+    }
 }
