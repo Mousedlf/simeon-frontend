@@ -10,6 +10,6 @@ export interface Trip {
     public?: boolean;
     participants?: TripParticipant[];
     budget?: number;
-    imageSrc?: string;
+    image?: string;
     daysOfTrip?: DayOfTrip[];
 }

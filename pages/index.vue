@@ -12,13 +12,9 @@ const tabs = [{
   slot: 'past',
 }]
 
-// const trips = ref<Trip[]>([]);
 const {user} = storeToRefs(useAuthStore());
 
-const {
-  data: tripsData,
-  error: tripsError
-} = await useAuthenticatedFetch(`/trip/all/${user.value?.id}`, {method: 'GET',});
+const {data: tripsData, error: tripsError} = await useAuthenticatedFetch(`/trip/all/${user.value?.id}`, {method: 'GET',});
 const trips = ref<Trip[]>(tripsData.value as Trip[] || []);
 console.log(trips.value);
 if (tripsError.value) {
@@ -38,7 +34,6 @@ const pastTrips = computed(() => {
 const defaultTripImage = 'https://i-de.unimedias.fr/2023/12/07/det1-peyresourd-0341-6571e6b76b623.jpg?auto=format%2Ccompress&crop=faces&cs=tinysrgb&fit=max&w=1050';
 const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCQ5uDxEKaeg-oV_AKOqwnTFoxR1gHUZ1EwQ&s';
 
-///
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const day = date.getDate();
@@ -103,7 +98,7 @@ function formatDateRange(startDate: string, endDate: string): string {
                    class="flex">
                   <div
                       class="h-56 w-full md:w-1/2 overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75 lg:h-72 xl:h-80">
-                    <img :src="trip.imageSrc || defaultTripImage" alt="image" class="size-full object-cover"/>
+                    <img :src="trip.image || defaultTripImage" alt="image" class="size-full object-cover"/>
                   </div>
                   <div class="ml-6">
                     <h3 class="mt-4 text-gray-700">{{ trip.name }}</h3>

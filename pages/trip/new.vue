@@ -165,11 +165,9 @@ async function createTrip(event: FormSubmitEvent<any>) {
         <template #second>
           <div class="ml-8">
             <p>ajout personnes</p>
-            <!-- Ajoute v-model à UInputMenu pour les participants si tu veux les capturer -->
             <UInputMenu multiple :items="items" delete-icon="i-lucide-trash" />
           </div>
 
-          <!-- Utilise UButton avec la prop 'to' pour un comportement de NuxtLink -->
           <UButton label="Ajouter plus tard" variant="outline" to="/"/>
           <UButton label="Enregistrer" />
         </template>

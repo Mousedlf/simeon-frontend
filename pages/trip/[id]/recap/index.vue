@@ -13,7 +13,7 @@ const tripId = route.params.id;
         :to="`/trip/${tripId}`"
         label="Voir le dashboard"
     />
-    <Button
+    <UButton
         to=""
         label="Télecharger pdf"
     />

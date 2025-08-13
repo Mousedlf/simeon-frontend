@@ -40,7 +40,7 @@ const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd
 
       <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
         <div class="flex items-center gap-4">
-          <Button redirect="/trip/new"
+          <UButton redirect="/trip/new"
                   label="Ajouter un voyage"
                   class="hidden md:block"
                   size="md"
@@ -105,7 +105,7 @@ const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd
         </div>
       </div>
 
-      <!-- Navigation principale -->
+      <!-- -->
       <div
           :class="[
               'md:flex md:w-auto md:order-1',
@@ -142,7 +142,7 @@ const defaultProfileImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd
 
           <li class="md:hidden mt-4 pt-4 border-t border-gray-200">
             <h3>Envie de partir à l'aventure ? lala</h3>
-            <Button redirect="/trip/new" label="Ajouter un voyage" class="block"/>
+            <UButton redirect="/trip/new" label="Ajouter un voyage" class="block"/>
           </li>
         </ul>
       </div>

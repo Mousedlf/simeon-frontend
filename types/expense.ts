@@ -1,12 +1,14 @@
 import type { TripParticipant } from "~/types/trip-participant";
 import type { DayOfTrip } from "~/types/day-of-trip";
 import type { Trip } from "~/types/trip";
+import type {Category} from "~/types/Category";
 
 export interface Expense {
     id: number;
     name: string;
-    sum: number;
-    category: "drinks"; //a ajouter au backend!
+    amountLocalCurrency: number;
+    amountEuro: number;
+    category: Category;
     dayOfTrip: DayOfTrip;
     trip: Trip;
     paymentMethod: string;

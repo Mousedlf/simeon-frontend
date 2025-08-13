@@ -11,7 +11,7 @@ const props = defineProps({
   },
   imageSrc: {
     type: String,
-    default: '',
+    default: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/396e9/MainBefore.jpg',
   },
   open: {
     type: Boolean,
@@ -37,12 +37,12 @@ const handleNoteAction = async () => {
 
 <template>
   <div class="itinerary-place flex">
-    <img v-if="props.imageSrc" :src="props.imageSrc" alt="Image of place" />
+    <img v-if="props.imageSrc" :src="props.imageSrc" :alt="props.name" class="w-50 h-auto" />
     <div class="pl-5">
       <h2>{{ props.name }}</h2>
       <p>{{ props.address }}</p>
-      <p v-if="props.open"><strong class="text-green-900">Ouvert</strong></p>
-      <p v-else><strong>Fermé</strong></p>
+<!--      <p v-if="props.open"><strong class="text-green-900">Ouvert</strong></p>-->
+<!--      <p v-else><strong>Fermé</strong></p>-->
       <ul v-if="props.openingHours.length">
         <li v-for="(hour, index) in props.openingHours" :key="index">
           {{ hour }}
@@ -51,6 +51,7 @@ const handleNoteAction = async () => {
 
       <UInput
           :placeholder="props.note || 'ajouter une note'"
+          class="mt-4"
           :ui="{ trailing: 'pe-1' }"
       >
         <template #trailing>

@@ -7,4 +7,6 @@
     --color-blue-300: #BBD1E7;
 
     --color-primary-500: #FFD454;
+
+    --ui-primary: var(--color-blue-500);
 }

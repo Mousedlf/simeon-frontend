@@ -42,12 +42,10 @@ const validate = (formState: Schema) => {
   }));
 };
 
-// Login
-const baseUrl = "https://simeon.back.dlfcaroline.com";
+const baseUrl = "https://apisimeon.dlfcaroline.com";
 const toast = useToast();
 const router = useRouter();
 const authStore = useAuthStore();
-const {token, authenticated} = storeToRefs(authStore)
 const config = useRuntimeConfig();
 
 const login = async () => {
@@ -115,8 +113,8 @@ const login = async () => {
 <template>
   <div class="flex flex-col md:flex-row h-screen w-screen">
     <div class="left bg-primary-500 flex items-center justify-center md:w-1/2 p-8">
-      <h1 class="hidden md:block md:text-2xl lg:text-3xl md:w-3/4 text-center">
-        REbonjour
+      <h1 class="hidden md:block md:text-2xl lg:text-3xl md:w-3/4">
+        Votre prochaine aventure vous attend. Connectez-vous pour y accéder.
       </h1>
     </div>
 
@@ -136,7 +134,7 @@ const login = async () => {
             <UInput v-model="state.password" class="w-full" type="password"/>
           </UFormField>
 
-          <Button class="w-full" label="Se connecter" type="submit"/>
+          <UButton class="w-full" label="Se connecter" type="submit"/>
         </UForm>
 
         <div class="mt-8 text-center">

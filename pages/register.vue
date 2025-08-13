@@ -28,12 +28,31 @@ const resetForm = () => {
   state.password = ''
 }
 
+const validate = (state: any): FormError[] => {
+  const result = v.safeParse(schema, state);
+  if (result.success) {
+    return [];
+  }
+
+  const errors: FormError[] = [];
+  result.issues.forEach(issue => {
+    const path = issue.path?.map(p => p.key).join('.');
+    if (path) {
+      errors.push({
+        path: path,
+        message: issue.message
+      });
+    }
+  });
+  return errors;
+};
+
+
 const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
   await register()
 }
 
-// Register
-const baseUrl = "https://simeon.back.dlfcaroline.com"
+const baseUrl = "https://apisimeon.dlfcaroline.com"
 const toast = useToast()
 const router = useRouter()
 
@@ -90,16 +109,16 @@ const register = async () => {
   <div class="flex flex-col md:flex-row h-screen w-screen">
     <div class="left bg-primary-500 flex items-center justify-center md:w-1/2 p-8">
       <h1 class="hidden md:block md:text-2xl lg:text-3xl md:w-3/4">
-        Simplifiez l'organisation et le suivi de vos voyages, solo ou à plusieurs, grâce à notre interface intégrant planning interactif, gestion financière et de réservations, ain si qu'une messagerie.
+        Simplifiez l'organisation et le suivi de vos voyages, solo ou à plusieurs, grâce à notre interface intégrant planning interactif, gestion financière et de documents.
       </h1>
     </div>
 
-    <!-- Partie droite (modifiée) -->
+    <!-- Partie droite -->
     <div class="right flex flex-col justify-center items-center md:w-1/2 p-8 md:p-12 lg:p-20">
       <div class="w-full max-w-md">
         <Logo class="hidden md:block mb-8 mx-auto" />
         <UForm
-            :schema="v.safeParser(schema)"
+            :validate="validate"
             :state="state"
             class="space-y-6 w-full"
             @submit="handleSubmit"
@@ -116,7 +135,7 @@ const register = async () => {
             <UInput v-model="state.password" type="password" class="w-full"/>
           </UFormField>
 
-          <Button type="submit" class="w-full" label="S'inscrire" />
+          <UButton type="submit" class="w-full" label="S'inscrire" />
         </UForm>
 
         <div class="mt-8 text-center">
